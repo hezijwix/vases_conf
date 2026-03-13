@@ -454,3 +454,24 @@ export async function exportGLB() {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+export function exportPNG() {
+  const savedBg = scene.background;
+  scene.background = null;
+
+  renderer.setClearColor(0x000000, 0);
+  renderer.render(scene, camera);
+
+  renderer.domElement.toBlob((blob) => {
+    scene.background = savedBg;
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'vase.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}

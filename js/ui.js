@@ -9,7 +9,7 @@ import {
   stickerCtx,
   getUV, paint, interpolatedPaint, mouseNDC, raycaster,
   STICKER_PATHS, stickerImages, placeSticker, setSelectedStickerIndex,
-  exportGLB
+  exportGLB, exportPNG
 } from './engine.js';
 import {
   initProfileEditor, initHandleEditor,
@@ -295,6 +295,12 @@ exportBtn.className = 'action-btn';
 exportBtn.textContent = 'Export GLB';
 exportBtn.addEventListener('click', exportGLB);
 exportSection.appendChild(exportBtn);
+const pngBtn = document.createElement('button');
+pngBtn.className = 'action-btn';
+pngBtn.style.marginTop = '6px';
+pngBtn.textContent = 'Export PNG';
+pngBtn.addEventListener('click', exportPNG);
+exportSection.appendChild(pngBtn);
 toolbar.appendChild(exportSection);
 
 // =========================================================
