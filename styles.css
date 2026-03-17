@@ -54,7 +54,7 @@ body {
   width: var(--toolbar-w);
   min-width: var(--toolbar-w);
   height: 100vh;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border-left: 1px solid var(--border);
   overflow-y: auto;
   overflow-x: hidden;
@@ -105,11 +105,29 @@ body {
 /* Mode panels */
 .mode-panel {
   display: none;
-  padding: 12px;
+  padding: 10px;
+  background: var(--bg-secondary);
 }
 
 .mode-panel.active {
   display: block;
+}
+
+/* Section card containers */
+.section-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.section-card .section-title {
+  margin-bottom: 10px;
+}
+
+.section-card .control-group:last-child {
+  margin-bottom: 0;
 }
 
 /* Control groups */

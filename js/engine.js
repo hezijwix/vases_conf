@@ -88,12 +88,20 @@ export function initEngine(area) {
   window.scene = scene;
   window.camera = camera;
 
-  // Resize handler
-  window.addEventListener('resize', () => {
-    camera.aspect = area.clientWidth / area.clientHeight;
+  // Resize handler — use ResizeObserver for reliable iframe support
+  const resizeFn = () => {
+    const w = area.clientWidth;
+    const h = area.clientHeight;
+    if (w === 0 || h === 0) return;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setSize(area.clientWidth, area.clientHeight);
-  });
+    renderer.setSize(w, h);
+  };
+
+  new ResizeObserver(resizeFn).observe(area);
+
+  // Deferred initial sizing for iframe contexts where dimensions aren't ready at parse time
+  requestAnimationFrame(resizeFn);
 }
 
 // =========================================================

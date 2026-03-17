@@ -232,17 +232,19 @@ function createButton(label, actionName) {
   return group;
 }
 
-function createSeparator() {
-  const sep = document.createElement('div');
-  sep.className = 'control-separator';
-  return sep;
-}
-
 function createSectionTitle(text) {
   const title = document.createElement('div');
   title.className = 'section-title';
   title.textContent = text;
   return title;
+}
+
+function createSectionCard(title, children) {
+  const card = document.createElement('div');
+  card.className = 'section-card';
+  if (title) card.appendChild(createSectionTitle(title));
+  for (const child of children) card.appendChild(child);
+  return card;
 }
 
 // =========================================================
@@ -286,47 +288,58 @@ for (const mode of MODES) {
 // ---- Sculpt Panel ----
 const sculptPanel = panelElements['Sculpt'];
 
-sculptPanel.appendChild(createSectionTitle('Shape'));
-sculptPanel.appendChild(createSelect('Vase Preset', 'vasePreset', [
-  'classic', 'tall', 'bowl', 'urn', 'bottle', 'wide'
-]));
-sculptPanel.appendChild(createSlider('Profile Smoothing', 'profileSmoothing', 0, 100));
-sculptPanel.appendChild(createSlider('Lathe Segments', 'latheSegments', 16, 128));
-initProfileEditor(sculptPanel);
-sculptPanel.appendChild(createButton('Reset Profile', 'clearProfile'));
+// Shape card
+const shapeCard = createSectionCard('Shape', [
+  createSelect('Vase Preset', 'vasePreset', [
+    'classic', 'tall', 'bowl', 'urn', 'bottle', 'wide'
+  ]),
+  createSlider('Profile Smoothing', 'profileSmoothing', 0, 100),
+  createSlider('Lathe Segments', 'latheSegments', 16, 128),
+]);
+initProfileEditor(shapeCard);
+shapeCard.appendChild(createButton('Reset Profile', 'clearProfile'));
+sculptPanel.appendChild(shapeCard);
 
-sculptPanel.appendChild(createSeparator());
-sculptPanel.appendChild(createSectionTitle('Handles'));
-sculptPanel.appendChild(createToggle('Show Handles', 'showHandles'));
+// Handles card
+const handlesCard = createSectionCard('Handles', [
+  createToggle('Show Handles', 'showHandles'),
+]);
 const handleThicknessControl = createSlider('Handle Thickness', 'handleThickness', 1, 50);
-sculptPanel.appendChild(handleThicknessControl);
-initHandleEditor(sculptPanel);
-sculptPanel.appendChild(createButton('Reset Handles', 'clearHandles'));
+handlesCard.appendChild(handleThicknessControl);
+initHandleEditor(handlesCard);
+handlesCard.appendChild(createButton('Reset Handles', 'clearHandles'));
+sculptPanel.appendChild(handlesCard);
 
-sculptPanel.appendChild(createSeparator());
-sculptPanel.appendChild(createSectionTitle('Material'));
-sculptPanel.appendChild(createColorPicker('Base Color', 'baseColor'));
-sculptPanel.appendChild(createSlider('Roughness', 'roughness', 0, 100));
-sculptPanel.appendChild(createSlider('Metalness', 'metalness', 0, 100));
+// Material card
+sculptPanel.appendChild(createSectionCard('Material', [
+  createColorPicker('Base Color', 'baseColor'),
+  createSlider('Roughness', 'roughness', 0, 100),
+  createSlider('Metalness', 'metalness', 0, 100),
+]));
 
-sculptPanel.appendChild(createSeparator());
-sculptPanel.appendChild(createSlider('Wheel Speed', 'wheelSpeed', 0, 100));
+// Wheel Speed card
+sculptPanel.appendChild(createSectionCard(null, [
+  createSlider('Wheel Speed', 'wheelSpeed', 0, 100),
+]));
 
 // ---- Draw Panel ----
 const drawPanel = panelElements['Draw'];
 
-drawPanel.appendChild(createSlider('Brush Size', 'brushSize', 1, 50));
-drawPanel.appendChild(createColorPicker('Brush Color', 'brushColor'));
-drawPanel.appendChild(createSlider('Brush Opacity', 'brushOpacity', 1, 100));
-drawPanel.appendChild(createToggle('Eraser Mode', 'eraser'));
-drawPanel.appendChild(createSeparator());
-drawPanel.appendChild(createButton('Clear Paint', 'clearTexture'));
+drawPanel.appendChild(createSectionCard('Brush', [
+  createSlider('Brush Size', 'brushSize', 1, 50),
+  createColorPicker('Brush Color', 'brushColor'),
+  createSlider('Brush Opacity', 'brushOpacity', 1, 100),
+  createToggle('Eraser Mode', 'eraser'),
+]));
+
+drawPanel.appendChild(createSectionCard(null, [
+  createButton('Clear Paint', 'clearTexture'),
+]));
 
 // ---- Stick Panel ----
 const stickPanel = panelElements['Stick'];
 
-stickPanel.appendChild(createSectionTitle('Stickers'));
-
+const stickersCard = createSectionCard('Stickers', []);
 const gallery = document.createElement('div');
 gallery.className = 'sticker-gallery';
 STICKER_PATHS.forEach((path, idx) => {
@@ -343,30 +356,30 @@ STICKER_PATHS.forEach((path, idx) => {
   });
   gallery.appendChild(thumb);
 });
-stickPanel.appendChild(gallery);
+stickersCard.appendChild(gallery);
+stickersCard.appendChild(createSlider('Sticker Scale', 'stickerScale', 10, 200));
+stickersCard.appendChild(createSlider('Sticker Rotation', 'stickerRotation', 0, 360));
+stickersCard.appendChild(createToggle('Randomize', 'stickerRandomize'));
+stickPanel.appendChild(stickersCard);
 
-stickPanel.appendChild(createSlider('Sticker Scale', 'stickerScale', 10, 200));
-stickPanel.appendChild(createSlider('Sticker Rotation', 'stickerRotation', 0, 360));
-stickPanel.appendChild(createToggle('Randomize', 'stickerRandomize'));
-stickPanel.appendChild(createSeparator());
-stickPanel.appendChild(createButton('Clear Stickers', 'clearStickers'));
+stickPanel.appendChild(createSectionCard(null, [
+  createButton('Clear Stickers', 'clearStickers'),
+]));
 
 // ---- Export (always visible) ----
-const exportSection = document.createElement('div');
-exportSection.style.padding = '12px';
-exportSection.style.borderTop = '1px solid var(--border)';
+const exportCard = createSectionCard('Export', []);
 const exportBtn = document.createElement('button');
 exportBtn.className = 'action-btn';
 exportBtn.textContent = 'Export GLB';
 exportBtn.addEventListener('click', exportGLB);
-exportSection.appendChild(exportBtn);
+exportCard.appendChild(exportBtn);
 const pngBtn = document.createElement('button');
 pngBtn.className = 'action-btn';
 pngBtn.style.marginTop = '6px';
 pngBtn.textContent = 'Export PNG';
 pngBtn.addEventListener('click', exportPNG);
-exportSection.appendChild(pngBtn);
-toolbar.appendChild(exportSection);
+exportCard.appendChild(pngBtn);
+toolbar.appendChild(exportCard);
 
 // =========================================================
 // Interaction & Mode Switching
