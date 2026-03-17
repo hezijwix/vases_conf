@@ -29,41 +29,106 @@ initEngine(area);
 // =========================================================
 
 function createSlider(label, key, min, max, step = 1) {
+  let curMin = min;
+  let curMax = max;
+
   const group = document.createElement('div');
   group.className = 'control-group';
 
+  // Label row: [Name] ... [min — max]
+  const labelRow = document.createElement('div');
+  labelRow.className = 'slider-label-row';
+
   const lbl = document.createElement('label');
   lbl.className = 'control-label';
+  lbl.style.marginBottom = '0';
   lbl.textContent = label;
 
+  const rangeRow = document.createElement('div');
+  rangeRow.className = 'slider-range';
+
+  const minInput = document.createElement('input');
+  minInput.type = 'number';
+  minInput.value = curMin;
+
+  const rangeSep = document.createElement('span');
+  rangeSep.textContent = '—';
+
+  const maxInput = document.createElement('input');
+  maxInput.type = 'number';
+  maxInput.value = curMax;
+
+  rangeRow.append(minInput, rangeSep, maxInput);
+  labelRow.append(lbl, rangeRow);
+
+  // Slider pill
   const wrap = document.createElement('div');
   wrap.className = 'slider-wrap';
 
+  const fill = document.createElement('div');
+  fill.className = 'slider-fill';
+
+  const valueOverlay = document.createElement('div');
+  valueOverlay.className = 'slider-value-overlay';
+  valueOverlay.textContent = controls.get(key);
+
   const input = document.createElement('input');
   input.type = 'range';
-  input.min = min;
-  input.max = max;
+  input.min = curMin;
+  input.max = curMax;
   input.step = step;
   input.value = controls.get(key);
 
-  const valueDisplay = document.createElement('span');
-  valueDisplay.className = 'slider-value';
-  valueDisplay.textContent = controls.get(key);
+  function updateFill(val) {
+    const pct = curMax > curMin ? ((val - curMin) / (curMax - curMin)) * 100 : 0;
+    const clampedPct = Math.max(0, Math.min(100, pct));
+    fill.style.width = clampedPct + '%';
+    valueOverlay.textContent = val;
+    valueOverlay.style.backgroundImage =
+      `linear-gradient(90deg, #fff 0%, #fff ${clampedPct}%, #000 ${clampedPct}%, #000 100%)`;
+  }
+
+  updateFill(controls.get(key));
 
   input.addEventListener('input', () => {
     const val = parseFloat(input.value);
-    valueDisplay.textContent = val;
+    updateFill(val);
     controls.set(key, val);
   });
 
   controls.onChange(key, (val) => {
     input.value = val;
-    valueDisplay.textContent = val;
+    updateFill(val);
   });
 
+  function applyRange() {
+    const newMin = parseFloat(minInput.value);
+    const newMax = parseFloat(maxInput.value);
+    if (isNaN(newMin) || isNaN(newMax) || newMax <= newMin) {
+      rangeRow.classList.add('slider-shake');
+      setTimeout(() => rangeRow.classList.remove('slider-shake'), 300);
+      minInput.value = curMin;
+      maxInput.value = curMax;
+      return;
+    }
+    curMin = newMin;
+    curMax = newMax;
+    input.min = curMin;
+    input.max = curMax;
+    // Clamp current value
+    let val = parseFloat(input.value);
+    if (val < curMin) { val = curMin; input.value = val; controls.set(key, val); }
+    if (val > curMax) { val = curMax; input.value = val; controls.set(key, val); }
+    updateFill(val);
+  }
+
+  minInput.addEventListener('change', applyRange);
+  maxInput.addEventListener('change', applyRange);
+
+  wrap.appendChild(fill);
+  wrap.appendChild(valueOverlay);
   wrap.appendChild(input);
-  wrap.appendChild(valueDisplay);
-  group.appendChild(lbl);
+  group.appendChild(labelRow);
   group.appendChild(wrap);
   return group;
 }

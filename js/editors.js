@@ -71,12 +71,12 @@ export function drawProfileEditor() {
   const currentProfile = getCurrentProfile();
 
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#0d0d1a';
+  ctx.fillStyle = '#f5f5f5';
   ctx.fillRect(0, 0, w, h);
 
   // Grid
   const margin = 20;
-  ctx.strokeStyle = '#1a1a3a';
+  ctx.strokeStyle = '#e0e0e0';
   ctx.lineWidth = 0.5;
   for (let i = 0; i <= 10; i++) {
     const x = margin + (i / 10) * (w - margin * 2);
@@ -85,8 +85,8 @@ export function drawProfileEditor() {
     ctx.beginPath(); ctx.moveTo(margin, y); ctx.lineTo(w - margin, y); ctx.stroke();
   }
 
-  // Axis of revolution (dashed blue)
-  ctx.strokeStyle = '#4a9eff44';
+  // Axis of revolution (dashed)
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
   ctx.lineWidth = 2;
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
@@ -95,9 +95,9 @@ export function drawProfileEditor() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Max safe height line (dashed green)
+  // Max safe height line (dashed)
   const safeHY = profileToCanvas([0, DRAW_MAX_H], w, h)[1];
-  ctx.strokeStyle = '#4aff4a44';
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
@@ -106,13 +106,13 @@ export function drawProfileEditor() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.fillStyle = '#4aff4a66';
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.font = '8px sans-serif';
   ctx.fillText('max height', w - margin - 50, safeHY - 3);
 
   // Danger zone
   const maxHY = profileToCanvas([0, MAX_H], w, h)[1];
-  ctx.fillStyle = 'rgba(255, 50, 50, 0.06)';
+  ctx.fillStyle = 'rgba(255, 50, 50, 0.08)';
   ctx.fillRect(margin, maxHY, w - margin * 2, safeHY - maxHY);
 
   // Draw smoothed profile curve
@@ -129,7 +129,7 @@ export function drawProfileEditor() {
       ctx.lineTo(p[0], p[1]);
     }
     ctx.closePath();
-    ctx.fillStyle = 'rgba(74, 158, 255, 0.08)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
     ctx.fill();
 
     // Stroke
@@ -139,7 +139,7 @@ export function drawProfileEditor() {
       const p = profileToCanvas(smoothed[i], w, h);
       ctx.lineTo(p[0], p[1]);
     }
-    ctx.strokeStyle = '#4a9eff';
+    ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -148,13 +148,13 @@ export function drawProfileEditor() {
       const [cx, cy] = profileToCanvas(p, w, h);
       ctx.beginPath();
       ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#000';
       ctx.fill();
     }
   }
 
   // Labels
-  ctx.fillStyle = '#555';
+  ctx.fillStyle = '#a3a3a3';
   ctx.font = '9px sans-serif';
   ctx.fillText('\u2190 axis', margin + 2, h - 5);
   ctx.fillText('radius \u2192', w - 60, h - 5);
@@ -280,12 +280,12 @@ export function drawHandleEditor() {
   const handleProfile = getHandleProfile();
 
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#0d0d1a';
+  ctx.fillStyle = '#f5f5f5';
   ctx.fillRect(0, 0, w, h);
 
   // Grid
   const margin = 15;
-  ctx.strokeStyle = '#1a1a3a';
+  ctx.strokeStyle = '#e0e0e0';
   ctx.lineWidth = 0.5;
   for (let i = 0; i <= 10; i++) {
     const x = margin + (i / 10) * (w - margin * 2);
@@ -294,8 +294,8 @@ export function drawHandleEditor() {
     ctx.beginPath(); ctx.moveTo(margin, y); ctx.lineTo(w - margin, y); ctx.stroke();
   }
 
-  // Center axis (dashed pink)
-  ctx.strokeStyle = '#ff4a9e44';
+  // Center axis (dashed)
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
   ctx.lineWidth = 2;
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
@@ -313,7 +313,7 @@ export function drawHandleEditor() {
       const p = handleToCanvas(handleProfile[i], w, h);
       ctx.lineTo(p[0], p[1]);
     }
-    ctx.strokeStyle = '#ff4a9e';
+    ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -322,13 +322,13 @@ export function drawHandleEditor() {
       const [cx, cy] = handleToCanvas(p, w, h);
       ctx.beginPath();
       ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#000';
       ctx.fill();
     }
   }
 
   // Labels
-  ctx.fillStyle = '#555';
+  ctx.fillStyle = '#a3a3a3';
   ctx.font = '9px sans-serif';
   ctx.fillText('\u2190 center', margin + 2, h - 5);
   ctx.fillText('width \u2192', w - 60, h - 5);
