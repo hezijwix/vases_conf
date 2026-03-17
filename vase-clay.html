@@ -3594,7 +3594,7 @@
   
   </script>
   <script type="module">
-    
+    // ── Creative Code ──
 import * as THREE from 'https://esm.sh/three@0.170.0';
 import { RGBELoader } from 'https://esm.sh/three@0.170.0/addons/loaders/RGBELoader.js';
 
@@ -4480,6 +4480,7 @@ function initHandleEditor(container) {
   // ── Sculpt Panel ──
   const sculptPanel = document.createElement('div');
   sculptPanel.id = 'panel-sculpt';
+  sculptPanel.style.cssText = 'display:flex;flex-direction:column;gap:5px;';
 
   // Shape section
   const shapeSection = createSection('Shape', [
@@ -4502,27 +4503,21 @@ function initHandleEditor(container) {
   if (ctrl.clearHandles) handlesSection.body.appendChild(ctrl.clearHandles);
   sculptPanel.appendChild(handlesSection.card);
 
-  // Material section
+  // Material section (includes wheel speed)
   const materialSection = createSection('Material', [
     ctrl.baseColor,
     ctrl.roughness,
     ctrl.metalness,
+    ctrl.wheelSpeed,
   ], true);
   sculptPanel.appendChild(materialSection.card);
-
-  // Wheel speed (standalone)
-  if (ctrl.wheelSpeed) {
-    ctrl.wheelSpeed.style.background = '';
-    ctrl.wheelSpeed.style.padding = '';
-    sculptPanel.appendChild(ctrl.wheelSpeed);
-  }
 
   controlsDiv.appendChild(sculptPanel);
 
   // ── Draw Panel ──
   const drawPanel = document.createElement('div');
   drawPanel.id = 'panel-draw';
-  drawPanel.style.display = 'none';
+  drawPanel.style.cssText = 'display:none;flex-direction:column;gap:5px;';
 
   const brushSection = createSection('Brush', [
     ctrl.brushSize,
@@ -4538,7 +4533,7 @@ function initHandleEditor(container) {
   // ── Stick Panel ──
   const stickPanel = document.createElement('div');
   stickPanel.id = 'panel-stick';
-  stickPanel.style.display = 'none';
+  stickPanel.style.cssText = 'display:none;flex-direction:column;gap:5px;';
 
   const stickersSection = createSection('Stickers', [
     ctrl.stickerImages,
@@ -4553,9 +4548,9 @@ function initHandleEditor(container) {
 
   // ── Mode switching ──
   function updateMode(mode) {
-    sculptPanel.style.display = mode === 'Sculpt' ? '' : 'none';
-    drawPanel.style.display = mode === 'Draw' ? '' : 'none';
-    stickPanel.style.display = mode === 'Stick' ? '' : 'none';
+    sculptPanel.style.display = mode === 'Sculpt' ? 'flex' : 'none';
+    drawPanel.style.display = mode === 'Draw' ? 'flex' : 'none';
+    stickPanel.style.display = mode === 'Stick' ? 'flex' : 'none';
     renderer.domElement.style.cursor =
       mode === 'Draw' ? 'crosshair' :
       mode === 'Stick' ? 'copy' : 'default';
