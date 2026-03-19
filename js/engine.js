@@ -2,6 +2,7 @@ import * as THREE from 'https://esm.sh/three@0.170.0';
 import { RGBELoader } from 'https://esm.sh/three@0.170.0/addons/loaders/RGBELoader.js';
 import { GLTFExporter } from 'https://esm.sh/three@0.170.0/addons/exporters/GLTFExporter.js';
 import { controls } from './controls.js';
+import { supabase } from './supabase.js';
 
 // =========================================================
 // Scene objects (populated by initEngine)
@@ -282,7 +283,7 @@ export function buildHandles() {
   const thickness = controls.get('handleThickness') / 200;
   const points3D = handleProfile.map(p => new THREE.Vector3(p[0], p[1], 0));
   const curve = new THREE.CatmullRomCurve3(points3D, false, 'catmullrom', 0.5);
-  const geometry = new THREE.TubeGeometry(curve, 32, thickness, 12, false);
+  const geometry = new THREE.TubeGeometry(curve, 64, thickness, 32, false);
 
   for (let i = 0; i < 2; i++) {
     const handleMat = new THREE.MeshStandardMaterial({
@@ -446,7 +447,7 @@ export function placeSticker(uv) {
 // GLB Export
 // =========================================================
 
-export async function exportGLB() {
+export async function exportGLB(filename = 'vase') {
   compositeTexture();
 
   const exporter = new GLTFExporter();
@@ -456,11 +457,82 @@ export async function exportGLB() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'vase.glb';
+  link.download = `${filename}.glb`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+export async function publishToSupabase(creatorName) {
+  try {
+    // Ensure texture is up to date
+    compositeTexture();
+
+    // Export GLB blob
+    const exporter = new GLTFExporter();
+    const glb = await exporter.parseAsync(wheelGroup, { binary: true });
+    const blob = new Blob([glb], { type: 'model/gltf-binary' });
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const sanitizedName = creatorName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `${sanitizedName}_${timestamp}.glb`;
+
+    // Upload to Supabase Storage
+    const { data: storageData, error: storageError } = await supabase.storage
+      .from('vase-models')
+      .upload(filename, blob, {
+        contentType: 'model/gltf-binary',
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (storageError) {
+      throw new Error(`Storage upload failed: ${storageError.message}`);
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('vase-models')
+      .getPublicUrl(filename);
+
+    // Save metadata to database
+    const { data: dbData, error: dbError } = await supabase
+      .from('vase_creations')
+      .insert({
+        creator_name: creatorName,
+        file_path: filename,
+        file_url: publicUrl,
+        metadata: {
+          vasePreset: controls.get('vasePreset'),
+          baseColor: controls.get('baseColor'),
+          hasHandles: controls.get('showHandles'),
+          roughness: controls.get('roughness'),
+          metalness: controls.get('metalness'),
+          timestamp: new Date().toISOString(),
+          device: 'iPad'
+        }
+      })
+      .select();
+
+    if (dbError) {
+      throw new Error(`Database insert failed: ${dbError.message}`);
+    }
+
+    return {
+      success: true,
+      url: publicUrl,
+      filename: filename,
+      id: dbData[0].id
+    };
+  } catch (error) {
+    console.error('Publish error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
 }
 
 export function exportPNG() {

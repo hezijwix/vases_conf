@@ -94,7 +94,7 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 .tool-canvas-area {
   flex: 1; display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  border-radius: 20px; background: transparent;
+  background: transparent;
   border: none;
 }
 .tool-canvas-area canvas { display: block; background: transparent; max-width: 100%; max-height: 100%; object-fit: contain; position: relative; z-index: 1; }
@@ -347,4 +347,177 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 
 .tool-controls::-webkit-scrollbar-thumb:hover {
   background: #a3a3a3;
+}
+
+/* ── Modal Overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--clay-duration-normal) var(--clay-ease);
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Modal Card ── */
+.modal-card {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-xl);
+  padding: var(--clay-space-8);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--clay-shadow-lg);
+  transform: scale(0.95);
+  transition: transform var(--clay-duration-normal) var(--clay-ease);
+}
+
+.modal-overlay.show .modal-card {
+  transform: scale(1);
+}
+
+.modal-header {
+  margin-bottom: var(--clay-space-6);
+}
+
+.modal-title {
+  font-size: var(--clay-font-size-lg);
+  font-weight: var(--clay-font-weight-bold);
+  color: var(--clay-text-primary);
+  margin-bottom: var(--clay-space-2);
+}
+
+.modal-description {
+  font-size: var(--clay-font-size-sm);
+  color: var(--clay-text-secondary);
+  line-height: var(--clay-line-height-relaxed);
+}
+
+.modal-body {
+  margin-bottom: var(--clay-space-6);
+}
+
+.modal-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clay-space-2);
+}
+
+.modal-label {
+  font-size: var(--clay-font-size-sm);
+  font-weight: var(--clay-font-weight-medium);
+  color: var(--clay-text-primary);
+  opacity: 0.6;
+}
+
+.modal-input {
+  width: 100%;
+  padding: var(--clay-space-3) var(--clay-space-4);
+  border: 1px solid var(--clay-border);
+  border-radius: var(--clay-radius-md);
+  font-size: var(--clay-font-size-base);
+  font-weight: var(--clay-font-weight-medium);
+  color: var(--clay-text-primary);
+  outline: none;
+  transition: border-color var(--clay-duration-fast) var(--clay-ease);
+  background: var(--clay-surface);
+}
+
+.modal-input:focus {
+  border-color: var(--clay-gray-400);
+}
+
+.modal-input::placeholder {
+  color: var(--clay-text-muted);
+  font-weight: var(--clay-font-weight-regular);
+}
+
+.modal-footer {
+  display: flex;
+  gap: var(--clay-space-3);
+}
+
+.modal-button {
+  flex: 1;
+  padding: var(--clay-space-3) var(--clay-space-4);
+  border: none;
+  border-radius: var(--clay-radius-full);
+  font-size: var(--clay-font-size-base);
+  font-weight: var(--clay-font-weight-medium);
+  cursor: pointer;
+  transition: background var(--clay-duration-fast) var(--clay-ease),
+              color var(--clay-duration-fast) var(--clay-ease);
+  font-family: var(--clay-font);
+}
+
+.modal-button-secondary {
+  background: var(--clay-gray-100);
+  color: var(--clay-text-primary);
+}
+
+.modal-button-secondary:hover {
+  background: var(--clay-gray-200);
+}
+
+.modal-button-primary {
+  background: var(--clay-black);
+  color: var(--clay-white);
+}
+
+.modal-button-primary:hover {
+  background: var(--clay-gray-800);
+}
+
+.modal-button-primary:active {
+  background: var(--clay-gray-900);
+}
+
+/* ── Canvas Publish Button ── */
+.canvas-publish-container {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.canvas-publish-btn {
+  padding: var(--clay-space-4) var(--clay-space-8);
+  background: var(--clay-white);
+  border: none;
+  border-radius: var(--clay-radius-full);
+  font-size: var(--clay-font-size-md);
+  font-weight: var(--clay-font-weight-bold);
+  color: var(--clay-black);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all var(--clay-duration-fast) var(--clay-ease);
+  font-family: var(--clay-font);
+  white-space: nowrap;
+  min-width: 200px;
+}
+
+.canvas-publish-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+.canvas-publish-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.canvas-publish-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }

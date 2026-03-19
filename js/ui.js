@@ -9,7 +9,7 @@ import {
   stickerCtx,
   getUV, paint, interpolatedPaint, mouseNDC, raycaster,
   STICKER_PATHS, stickerImages, placeSticker, setSelectedStickerIndex,
-  exportGLB, exportPNG
+  publishToSupabase
 } from './engine.js';
 import {
   initProfileEditor, initHandleEditor,
@@ -439,35 +439,23 @@ stickersSection.body.appendChild(randomizeToggle);
 stickersSection.body.appendChild(createButton('Clear Stickers', 'clearStickers'));
 stickPanel.appendChild(stickersSection.card);
 
-// ---- Export (always visible) ----
-const exportCard = document.createElement('div');
-exportCard.className = 'ct-group';
+// ---- Publish Button on Canvas ----
+const publishContainer = document.createElement('div');
+publishContainer.className = 'canvas-publish-container';
 
-const exportHeader = document.createElement('div');
-exportHeader.className = 'ct-section-header ct-section-static open';
-const exportLabel = document.createElement('span');
-exportLabel.className = 'ct-section-label';
-exportLabel.textContent = 'Export';
-exportHeader.appendChild(exportLabel);
-exportCard.appendChild(exportHeader);
+const publishBtn = document.createElement('button');
+publishBtn.className = 'canvas-publish-btn';
+publishBtn.textContent = 'Publish Your Creation';
+publishBtn.addEventListener('click', () => {
+  const modal = document.getElementById('export-modal');
+  const input = document.getElementById('creator-name');
+  input.value = '';
+  modal.classList.add('show');
+  setTimeout(() => input.focus(), 100);
+});
 
-const exportBody = document.createElement('div');
-exportBody.className = 'ct-section-body ct-open';
-
-const exportBtn = document.createElement('button');
-exportBtn.className = 'ct-button';
-exportBtn.textContent = 'Export GLB';
-exportBtn.addEventListener('click', exportGLB);
-exportBody.appendChild(exportBtn);
-
-const pngBtn = document.createElement('button');
-pngBtn.className = 'ct-button';
-pngBtn.textContent = 'Export PNG';
-pngBtn.addEventListener('click', exportPNG);
-exportBody.appendChild(pngBtn);
-
-exportCard.appendChild(exportBody);
-toolbar.appendChild(exportCard);
+publishContainer.appendChild(publishBtn);
+area.appendChild(publishContainer);
 
 // =========================================================
 // Interaction & Mode Switching
@@ -578,22 +566,6 @@ renderer.domElement.addEventListener('pointerleave', () => {
   lastPaintUV = null;
 });
 
-// Continuous painting while rotating (30ms interval)
-setInterval(() => {
-  if (!isPainting || controls.get('toolMode') !== 'Draw' || !getVaseMesh()) return;
-  raycaster.setFromCamera(mouseNDC, camera);
-  const hits = raycaster.intersectObject(getVaseMesh(), false);
-  if (hits.length > 0 && hits[0].uv) {
-    paint(
-      hits[0].uv.clone(),
-      controls.get('brushSize') * 0.8,
-      controls.get('brushColor'),
-      controls.get('brushOpacity') * 0.6,
-      controls.get('eraser')
-    );
-  }
-}, 30);
-
 // =========================================================
 // Control Callbacks
 // =========================================================
@@ -671,6 +643,85 @@ controls.onAction('clearHandles', () => {
 controls.onAction('clearStickers', () => {
   stickerCtx.clearRect(0, 0, TEX, TEX);
   compositeTexture();
+});
+
+// =========================================================
+// Export Modal Handlers
+// =========================================================
+
+const exportModal = document.getElementById('export-modal');
+const creatorNameInput = document.getElementById('creator-name');
+const modalCancelBtn = document.getElementById('modal-cancel');
+const modalExportBtn = document.getElementById('modal-export');
+
+// Close modal function
+function closeModal() {
+  exportModal.classList.remove('show');
+}
+
+// Cancel button
+modalCancelBtn.addEventListener('click', closeModal);
+
+// Click outside modal to close
+exportModal.addEventListener('click', (e) => {
+  if (e.target === exportModal) {
+    closeModal();
+  }
+});
+
+// Escape key to close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && exportModal.classList.contains('show')) {
+    closeModal();
+  }
+});
+
+// Export button
+modalExportBtn.addEventListener('click', async () => {
+  const creatorName = creatorNameInput.value.trim();
+
+  if (!creatorName) {
+    alert('Please enter your name');
+    return;
+  }
+
+  // Show loading state
+  const originalText = modalExportBtn.textContent;
+  modalExportBtn.textContent = 'Publishing...';
+  modalExportBtn.disabled = true;
+
+  try {
+    // Publish to Supabase
+    const result = await publishToSupabase(creatorName);
+
+    if (result.success) {
+      // Success!
+      modalExportBtn.textContent = '✓ Published!';
+      setTimeout(() => {
+        closeModal();
+        modalExportBtn.textContent = originalText;
+        modalExportBtn.disabled = false;
+
+        // Show success message with URL
+        alert(`🎉 Your creation has been published!\n\nCreator: ${creatorName}\nURL: ${result.url}`);
+      }, 1000);
+    } else {
+      // Error
+      throw new Error(result.error || 'Upload failed');
+    }
+  } catch (error) {
+    console.error('Publish error:', error);
+    modalExportBtn.textContent = originalText;
+    modalExportBtn.disabled = false;
+    alert(`❌ Failed to publish: ${error.message}\n\nPlease try again.`);
+  }
+});
+
+// Enter key to submit
+creatorNameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    modalExportBtn.click();
+  }
 });
 
 // =========================================================

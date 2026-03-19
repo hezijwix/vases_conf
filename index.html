@@ -2,14 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Vase Designer</title>
   <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/neue-haas-grotesk-display-pro">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="tool-canvas-area" id="canvas-area"></div>
   <div class="tool-controls" id="toolbar"></div>
+
+  <!-- Publish Modal -->
+  <div class="modal-overlay" id="export-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Publish Your Creation</h2>
+        <p class="modal-description">Share your beautiful vase with the world</p>
+      </div>
+      <div class="modal-body">
+        <div class="modal-input-group">
+          <label class="modal-label" for="creator-name">Your Name</label>
+          <input
+            type="text"
+            id="creator-name"
+            class="modal-input"
+            placeholder="Enter your name"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-button modal-button-secondary" id="modal-cancel">Cancel</button>
+        <button class="modal-button modal-button-primary" id="modal-export">Publish</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="js/ui.js"></script>
 </body>
 </html>
